@@ -10,7 +10,8 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "test": "vitest run",
-    "typecheck:engine": "tsc --noEmit -p tests/tsconfig.json"
+    "typecheck:engine": "tsc --noEmit -p tests/tsconfig.json",
+    "typecheck:functions": "cd supabase/functions/learn && npx -y deno@2.5.6 check --config deno.json index.ts"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

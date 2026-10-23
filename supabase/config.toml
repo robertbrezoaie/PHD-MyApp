@@ -394,6 +394,12 @@ entrypoint = "./functions/submit-answer/index.ts"
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/submit-answer/*.html" ]
 
+[functions.learn]
+enabled = true
+verify_jwt = true
+import_map = "./functions/learn/deno.json"
+entrypoint = "./functions/learn/index.ts"
+
 [functions.refresh-energy]
 enabled = true
 verify_jwt = true
