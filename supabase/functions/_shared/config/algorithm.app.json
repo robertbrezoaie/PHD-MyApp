@@ -1,0 +1,16 @@
+{
+  "_doc": "App-only settings layered over algorithm.default.json (copied unchanged from learnspace-sim v1.0). Keys starting with '_' are documentation. Only keys listed here differ from the simulation.",
+  "bandit": {
+    "ts_mode": "probs",
+    "_ts_mode": "The app must log propensities, so it uses Monte Carlo probsTS (LEARNSPACE_RESEARCH_UPDATE.md section 3)."
+  },
+  "app": {
+    "difficulty_rule": "DDA-E",
+    "_difficulty_rule": "'DDA-E' (paper Eq. 4, default) or 'STATIC' (D = D_base(s)). Section 7.",
+    "sessions": null,
+    "_sessions": "Number of planned sessions S for the curriculum base. Open decision (section 12.2); must be set before sessions start.",
+    "correct_min_score": 2,
+    "_correct_min_score": "A graded answer counts as correct at score >= this value on the grader's 0-3 scale.",
+    "core_commit": "05f70f7"
+  }
+}
