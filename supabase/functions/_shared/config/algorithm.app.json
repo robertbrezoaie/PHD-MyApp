@@ -7,6 +7,8 @@
   "app": {
     "difficulty_rule": "DDA-E",
     "_difficulty_rule": "'DDA-E' (paper Eq. 4, default) or 'STATIC' (D = D_base(s)). Section 7.",
+    "planned_tasks": 12,
+    "_planned_tasks": "Tasks per session, as in pit-study (N_QUESTIONS = 12). Decided by Robert, 2026-10-23.",
     "sessions": null,
     "_sessions": "Number of planned sessions S for the curriculum base. Open decision (section 12.2); must be set before sessions start.",
     "correct_min_score": 2,

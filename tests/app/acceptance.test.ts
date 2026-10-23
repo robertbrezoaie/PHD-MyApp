@@ -1,7 +1,7 @@
 // Acceptance tests from LEARNSPACE_RESEARCH_UPDATE.md section 11: invariants, golden cases (paper Table 4), cold start.
 import { describe, expect, it } from 'vitest';
 import { config } from '../../supabase/functions/_shared/config/config.ts';
-import { difficultyStep, rewardStep } from '../../supabase/functions/_shared/adaptive.ts';
+import { difficultyStep, rewardStep } from '../../supabase/functions/_shared/explain/adaptive.ts';
 import { SignalTracker } from '../../supabase/functions/_shared/core/signals.ts';
 import { explainV2 } from '../../supabase/functions/_shared/core/explain.ts';
 import { allocate, type Posterior } from '../../supabase/functions/_shared/core/bandit/allocator.ts';
@@ -22,6 +22,7 @@ describe('config', () => {
     expect([cfg.reward.alpha, cfg.reward.beta, cfg.reward.gamma]).toEqual([0.4, 0.4, 0.2]);
     expect(config.app.difficulty_rule).toBe('DDA-E');
     expect(config.app.correct_min_score).toBe(2);
+    expect(config.app.planned_tasks).toBe(12);
   });
 
   it('drops documentation keys', () => {

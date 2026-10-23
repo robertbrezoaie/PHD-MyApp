@@ -2,10 +2,10 @@
 // The core computes the decisions; this module only decides which of them are explained
 // and applies the static rules when a learner has opted out of adaptation.
 
-import type { AlgorithmConfig, Signals } from './core/types.ts';
-import { rewardDecision, type RewardDecision } from './core/reward.ts';
-import { difficultyDecision, type DifficultyDecision, type DifficultyInput } from './core/difficulty.ts';
-import { explainV2, type Explanation } from './core/explain.ts';
+import type { AlgorithmConfig, Signals } from '../core/types.ts';
+import { rewardDecision, type RewardDecision } from '../core/reward.ts';
+import { difficultyDecision, type DifficultyDecision, type DifficultyInput } from '../core/difficulty.ts';
+import { explainV2, type Explanation } from '../core/explain.ts';
 
 /** Reward after a task: Δ = aiReward, ε = eps_r. With adaptation off, m = 1 and nothing is explained. */
 export function rewardStep(
