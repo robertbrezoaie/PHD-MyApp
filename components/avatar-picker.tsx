@@ -9,15 +9,13 @@ import {
   ScrollView,
   Dimensions,
   ActivityIndicator,
-  Alert,
   Image,
 } from "react-native";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
-import * as ImagePicker from "expo-image-picker";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../lib/theme";
-import { uploadAvatarPhoto, updateAvatarUrl } from "../lib/api";
+import { updateAvatarUrl } from "../lib/api";
 
 const { width } = Dimensions.get("window");
 
@@ -57,7 +55,8 @@ const EMOJIS = [
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-type Tab = "photo" | "emoji" | "monsters";
+// No photo upload: avatars are emoji or generated (LEARNSPACE_RESEARCH_UPDATE.md section 10.1).
+type Tab = "emoji" | "monsters";
 
 interface Props {
   visible: boolean;
@@ -72,32 +71,6 @@ export default function AvatarPicker({ visible, userId, onClose, onUpdated }: Pr
   const [loading, setLoading] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
   const [selectedMonster, setSelectedMonster] = useState<string | null>(null);
-
-  const handlePickPhoto = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("Permission needed", "Please allow access to your photo library.");
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-    if (result.canceled) return;
-
-    setLoading(true);
-    try {
-      const url = await uploadAvatarPhoto(userId, result.assets[0].uri);
-      onUpdated(url);
-      onClose();
-    } catch (e: any) {
-      Alert.alert("Upload failed", e.message ?? "Could not upload photo. Make sure the avatars storage bucket exists in Supabase.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleConfirmEmoji = async () => {
     if (!selectedEmoji) return;
@@ -122,7 +95,6 @@ export default function AvatarPicker({ visible, userId, onClose, onUpdated }: Pr
   const TABS: { key: Tab; label: string; icon: string }[] = [
     { key: "monsters", label: "Monsters", icon: "alien-outline" },
     { key: "emoji",    label: "Emoji",    icon: "emoticon-outline" },
-    { key: "photo",    label: "Photo",    icon: "image-outline" },
   ];
 
   return (
@@ -163,30 +135,6 @@ export default function AvatarPicker({ visible, userId, onClose, onUpdated }: Pr
             </TouchableOpacity>
           ))}
         </View>
-
-        {/* ── Photo tab ── */}
-        {tab === "photo" && (
-          <View style={styles.photoTab}>
-            <TouchableOpacity
-              style={[styles.photoBtn, { borderColor: c.accent, backgroundColor: c.accentBg }]}
-              onPress={handlePickPhoto}
-              disabled={loading}
-              activeOpacity={0.8}
-            >
-              {loading ? (
-                <ActivityIndicator color={c.accent} size="large" />
-              ) : (
-                <>
-                  <LinearGradient colors={["#3DB4F2", "#7B61FF"]} style={styles.photoIconCircle}>
-                    <Ionicons name="image-outline" size={32} color="#fff" />
-                  </LinearGradient>
-                  <Text style={[styles.photoBtnTitle, { color: c.text }]}>Choose from Library</Text>
-                  <Text style={[styles.photoBtnSub, { color: c.textMuted }]}>Square crop recommended</Text>
-                </>
-              )}
-            </TouchableOpacity>
-          </View>
-        )}
 
         {/* ── Emoji tab ── */}
         {tab === "emoji" && (
@@ -309,16 +257,6 @@ const styles = StyleSheet.create({
   tabBar: { flexDirection: "row", marginHorizontal: 20, borderRadius: 14, padding: 4, marginBottom: 16 },
   tabBtn: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 9, borderRadius: 11 },
   tabLabel: { fontSize: 13, fontWeight: "600" },
-
-  // Photo
-  photoTab: { paddingHorizontal: 20, paddingBottom: 8 },
-  photoBtn: {
-    borderWidth: 2, borderStyle: "dashed", borderRadius: 20,
-    paddingVertical: 40, alignItems: "center", gap: 12,
-  },
-  photoIconCircle: { width: 72, height: 72, borderRadius: 36, justifyContent: "center", alignItems: "center" },
-  photoBtnTitle: { fontSize: 17, fontWeight: "700" },
-  photoBtnSub: { fontSize: 13 },
 
   // Emoji
   emojiTab: { flex: 1, paddingHorizontal: 20 },

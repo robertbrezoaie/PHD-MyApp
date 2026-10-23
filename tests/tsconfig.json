@@ -13,5 +13,5 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["./**/*.ts", "../supabase/functions/_shared/**/*.ts"]
+  "include": ["./**/*.ts", "../supabase/functions/_shared/**/*.ts", "../scripts/gen-bank-seed.ts"]
 }

@@ -47,7 +47,8 @@ export default function QuestsScreen() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [lbScope, setLbScope] = useState<"global" | "private">("global");
+  // opens on "My rank" (section 10.4: no other learners shown by default)
+  const [lbScope, setLbScope] = useState<"global" | "private">("private");
   const [lbCollapsed, setLbCollapsed] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
@@ -118,6 +119,24 @@ export default function QuestsScreen() {
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={c.accent} />}
         >
+          {/* Adaptive practice session */}
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              router.push("/session");
+            }}
+          >
+            <LinearGradient colors={["#3DB4F2", "#7B61FF"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.practiceCard}>
+              <MaterialCommunityIcons name="brain" size={28} color="#fff" />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.practiceTitle}>Practice session</Text>
+                <Text style={styles.practiceSub}>12 questions that adapt to you</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={22} color="#fff" />
+            </LinearGradient>
+          </TouchableOpacity>
+
           {/* Quests */}
           <Text style={[styles.sectionTitle, { color: c.text }]}>My Quests</Text>
           <ScrollView
@@ -372,6 +391,9 @@ const styles = StyleSheet.create({
   headerBadgeText: { fontSize: 12, color: "#3DB4F2", fontWeight: "700" },
 
   content: { paddingHorizontal: 20 },
+  practiceCard: { flexDirection: "row", alignItems: "center", gap: 14, borderRadius: 18, padding: 18, marginBottom: 8 },
+  practiceTitle: { color: "#fff", fontSize: 17, fontWeight: "800" },
+  practiceSub: { color: "#ffffffd0", fontSize: 13, marginTop: 2 },
   sectionTitle: { fontSize: 18, fontWeight: "800", color: "#E8F0FF", letterSpacing: -0.3, marginBottom: 14, marginTop: 8 },
 
   // Quests

@@ -232,24 +232,6 @@ export async function purchaseFrame(userId: string, cost: number): Promise<numbe
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
 
-export async function uploadAvatarPhoto(userId: string, localUri: string): Promise<string> {
-  const { File: FSFile } = await import("expo-file-system");
-  const file = new FSFile(localUri);
-  const arrayBuffer = await file.arrayBuffer();
-  const path = `${userId}/avatar.jpg`;
-
-  const { error } = await supabase.storage
-    .from("avatars")
-    .upload(path, arrayBuffer, { contentType: "image/jpeg", upsert: true });
-  if (error) throw error;
-
-  const { data } = supabase.storage.from("avatars").getPublicUrl(path);
-  // Bust cache with timestamp
-  const url = `${data.publicUrl}?t=${Date.now()}`;
-  await supabase.from("profiles").update({ avatar_url: url }).eq("id", userId);
-  return url;
-}
-
 export async function updateAvatarUrl(userId: string, url: string): Promise<void> {
   await supabase.from("profiles").update({ avatar_url: url }).eq("id", userId);
 }

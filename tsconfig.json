@@ -18,6 +18,7 @@
     "node_modules",
     "supabase",
     "tests",
+    "scripts/gen-bank-seed.ts",
     "vitest.config.ts"
   ]
 }

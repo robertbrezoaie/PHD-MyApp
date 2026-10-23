@@ -13,12 +13,14 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { supabase } from "../lib/supabase";
+import { GRADE_CHOICES } from "../lib/learn";
 
 export default function LoginScreen() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [grade, setGrade] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleForgotPassword = async () => {
@@ -47,6 +49,10 @@ export default function LoginScreen() {
       Alert.alert("Missing fields", "Please choose a username.");
       return;
     }
+    if (mode === "signup" && grade === null) {
+      Alert.alert("Missing fields", "Please tell us your grade.");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -54,7 +60,7 @@ export default function LoginScreen() {
         const { error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
-          options: { data: { username: username.trim() } },
+          options: { data: { username: username.trim(), grade_band: GRADE_CHOICES[grade!].band } },
         });
         if (error) throw error;
       } else {
@@ -117,6 +123,23 @@ export default function LoginScreen() {
               onChangeText={setUsername}
               editable={!loading}
             />
+          )}
+          {mode === "signup" && (
+            <View style={styles.gradeBlock}>
+              <Text style={styles.gradeLabel}>What grade are you in?</Text>
+              <View style={styles.gradeRow}>
+                {GRADE_CHOICES.map((g, i) => (
+                  <TouchableOpacity
+                    key={g.label}
+                    style={[styles.gradeChip, grade === i && styles.gradeChipActive]}
+                    onPress={() => setGrade(i)}
+                    disabled={loading}
+                  >
+                    <Text style={[styles.gradeChipText, grade === i && styles.gradeChipTextActive]}>{g.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
           )}
           <TextInput
             style={styles.input}
@@ -210,4 +233,12 @@ const styles = StyleSheet.create({
   submitBtnDisabled: { opacity: 0.7 },
   submitText: { color: "#fff", fontSize: 16, fontWeight: "700" },
   forgotText: { color: "#3DB4F2", fontSize: 14, textAlign: "right", marginBottom: 12 },
+
+  gradeBlock: { marginBottom: 12 },
+  gradeLabel: { fontSize: 14, fontWeight: "600", color: "#555", marginBottom: 8 },
+  gradeRow: { flexDirection: "row", gap: 8 },
+  gradeChip: { flex: 1, backgroundColor: "#F5F5F5", borderRadius: 12, paddingVertical: 12, alignItems: "center" },
+  gradeChipActive: { backgroundColor: "#3DB4F2" },
+  gradeChipText: { fontSize: 13, fontWeight: "600", color: "#555" },
+  gradeChipTextActive: { color: "#fff" },
 });
