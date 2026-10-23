@@ -9,7 +9,7 @@ import overrides from './algorithm.app.json' with { type: 'json' };
 export interface AppConfig {
   difficulty_rule: DifficultyRule;
   planned_tasks: number;
-  sessions: number | null;
+  sessions: number;
   correct_min_score: number;
   core_commit: string;
 }
@@ -46,9 +46,7 @@ export function validate(cfg: LoadedConfig): LoadedConfig {
   if (cfg.algorithm.bandit.ts_mode !== 'probs') throw new Error('config: the app must use bandit.ts_mode = probs');
   if (cfg.app.difficulty_rule !== 'DDA-E' && cfg.app.difficulty_rule !== 'STATIC') throw new Error('config: app.difficulty_rule');
   if (!(Number.isInteger(cfg.app.planned_tasks) && cfg.app.planned_tasks >= 1)) throw new Error('config: app.planned_tasks');
-  if (cfg.app.sessions !== null && !(Number.isInteger(cfg.app.sessions) && cfg.app.sessions >= 1)) {
-    throw new Error('config: app.sessions must be a positive integer or null');
-  }
+  if (!(Number.isInteger(cfg.app.sessions) && cfg.app.sessions >= 1)) throw new Error('config: app.sessions must be a positive integer');
   return cfg;
 }
 

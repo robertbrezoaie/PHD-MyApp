@@ -9,8 +9,8 @@
     "_difficulty_rule": "'DDA-E' (paper Eq. 4, default) or 'STATIC' (D = D_base(s)). Section 7.",
     "planned_tasks": 12,
     "_planned_tasks": "Tasks per session, as in pit-study (N_QUESTIONS = 12). Decided by Robert, 2026-10-23.",
-    "sessions": null,
-    "_sessions": "Number of planned sessions S for the curriculum base. Open decision (section 12.2); must be set before sessions start.",
+    "sessions": 20,
+    "_sessions": "Number of planned sessions S: D_base rises from 2 to 4 over S sessions. 20 for the current tests (Robert, 2026-10-23); the full curriculum has hundreds.",
     "correct_min_score": 2,
     "_correct_min_score": "A graded answer counts as correct at score >= this value on the grader's 0-3 scale.",
     "core_commit": "05f70f7"
