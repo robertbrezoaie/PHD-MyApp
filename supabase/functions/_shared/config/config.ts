@@ -12,6 +12,7 @@ export interface AppConfig {
   sessions: number;
   correct_min_score: number;
   core_commit: string;
+  consent_version: string;
 }
 
 export interface LoadedConfig {

@@ -155,6 +155,12 @@ export interface Store {
   insertAdaptiveDecision(d: AdaptiveDecisionRow): Promise<void>;
   getAdaptiveDecision(attemptId: string, output: 'reward' | 'difficulty'): Promise<AdaptiveDecisionRow | null>;
 
+  hasConsent(learnerId: string, version: string): Promise<boolean>;
+  /** Stores parental consent and learner assent, both with the text version and the time. */
+  recordConsent(learnerId: string, version: string): Promise<void>;
+  /** delete_learner_data(): deletes the learner and everything that references them, then a fresh learner row. */
+  deleteLearnerData(userId: string): Promise<void>;
+
   llmLogger(sessionId: string): CallLogger;
   /** XP, level, points, coins, streak and badges, as submit-answer does. */
   awardXp(userId: string, xp: number): Promise<XpAward>;

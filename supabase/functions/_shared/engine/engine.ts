@@ -14,12 +14,13 @@ import { gradeAnswer } from '../grading/grader.ts';
 import { generateFeedback, type TutorResult } from '../pedagogy/tutor.ts';
 import { selectNext } from '../pedagogy/selection.ts';
 import { replay, type SessionRecord } from '../learner/history.ts';
+import { missedSessions } from '../learner/absence.ts';
 import type { Band } from '../domain/types.ts';
 import type { AdaptiveDecisionRow, AttemptRow, BankQuestion, LearnerRow, SessionRow, Store, XpAward } from './store.ts';
 
 export class EngineError extends Error {
   constructor(
-    readonly code: 'no_learner' | 'needs_grade_band' | 'no_open_session' | 'not_found' | 'state_mismatch' | 'bank_exhausted',
+    readonly code: 'no_learner' | 'needs_grade_band' | 'needs_consent' | 'no_open_session' | 'not_found' | 'state_mismatch' | 'bank_exhausted',
     readonly status: number,
   ) {
     super(code);
@@ -89,6 +90,9 @@ export class Engine {
   async start(userId: string): Promise<TaskView | null> {
     const learner = await this.learner(userId);
     if (!learner.grade_band) throw new EngineError('needs_grade_band', 409);
+    if (!(await this.store.hasConsent(learner.learner_id, this.cfg.app.consent_version))) {
+      throw new EngineError('needs_consent', 409);
+    }
     const sessions = await this.store.getSessions(learner.learner_id);
     const open = sessions.find((s) => s.ended_at === null);
     if (open) return this.current(userId);
@@ -209,6 +213,18 @@ export class Engine {
     }
     const completion = await this.complete(learner, session, updated, question);
     return { outcome: !graded ? 'ungraded' : correct ? 'correct' : 'incorrect', completion };
+  }
+
+  /** Records parental consent and the learner's assent for the current consent text (section 10.6). */
+  async consent(userId: string): Promise<void> {
+    const learner = await this.learner(userId);
+    await this.store.recordConsent(learner.learner_id, this.cfg.app.consent_version);
+  }
+
+  /** Deletion on request (section 10.7): removes every learning row and starts a new pseudonym. */
+  async deleteMyData(userId: string): Promise<void> {
+    await this.learner(userId);
+    await this.store.deleteLearnerData(userId);
   }
 
   /** Ends the open session early; the unanswered planned tasks become quit slots for e. */
@@ -387,12 +403,10 @@ export class Engine {
     }));
   }
 
-  /**
-   * Missed sessions add planned_tasks slots of 0 each before the next session (section 5, e).
-   * How a missed session is detected is still open (section 12.1), so none are counted yet.
-   */
-  private absentSlotsBefore(_previous: readonly SessionRow[]): number {
-    return 0;
+  /** Missed sessions add planned_tasks slots of 0 each before the next session (section 5, e). */
+  private absentSlotsBefore(previous: readonly SessionRow[]): number {
+    const last = previous.at(-1);
+    return missedSessions(last ? new Date(last.started_at) : null, this.deps.now()) * this.cfg.app.planned_tasks;
   }
 
   /** Curriculum: D_base rises from 2 to 4 over S sessions; sessions after S stay at the end value. */

@@ -26,6 +26,7 @@ const MIGRATIONS = [
   '20260327100035_initial_schema.sql',
   '20261023120000_adaptive_engine.sql',
   '20261023120100_bank_items_seed.sql',
+  '20261023130000_data_protection.sql',
 ];
 
 let pg: PGlite;
@@ -201,5 +202,61 @@ describe('access from the app (RLS)', () => {
     const a = await newUser();
     const id = await seedDecision(a.learnerId);
     await expect(asUser(a.userId, `select public.finalize_feedback($1, 1, null, true)`, [id])).rejects.toThrow(/permission denied/);
+  });
+});
+
+describe('data protection (section 10)', () => {
+  it('deletes every learning row of a learner and gives them a new pseudonym', async () => {
+    const u = await newUser({ grade_band: 'upper' });
+    const d = await seedDecision(u.learnerId);
+    await pg.query(`insert into public.consents (learner_id, kind, version) values ($1, 'parental_consent', 'v1')`, [u.learnerId]);
+    await pg.query(`select public.delete_learner_data($1)`, [u.userId]);
+    for (const [table, col] of [
+      ['learning_sessions', 'learner_id'],
+      ['task_attempts', 'learner_id'],
+      ['consents', 'learner_id'],
+    ]) {
+      const r = await pg.query(`select 1 from public.${table} where ${col} = $1`, [u.learnerId]);
+      expect(r.rows, table).toHaveLength(0);
+    }
+    expect((await pg.query(`select 1 from public.feedback_decisions where id = $1`, [d])).rows).toHaveLength(0);
+    const fresh = await pg.query<{ learner_id: string; grade_band: string | null }>(
+      `select learner_id, grade_band from public.learners where user_id = $1`,
+      [u.userId],
+    );
+    expect(fresh.rows[0].learner_id).not.toBe(u.learnerId);
+    expect(fresh.rows[0].grade_band).toBeNull();
+    // the profile (XP, coins, badges) is not learning data and stays
+    expect((await pg.query(`select 1 from public.profiles where id = $1`, [u.userId])).rows).toHaveLength(1);
+  });
+
+  it('purges sessions that started before the cutoff, with their attempts', async () => {
+    const u = await newUser();
+    await seedDecision(u.learnerId);
+    await pg.query(`update public.learning_sessions set started_at = '2020-01-01' where learner_id = $1`, [u.learnerId]);
+    const r = await pg.query<{ n: number }>(`select public.purge_learning_data('2021-01-01') as n`);
+    expect(r.rows[0].n).toBeGreaterThanOrEqual(1);
+    expect((await pg.query(`select 1 from public.task_attempts where learner_id = $1`, [u.learnerId])).rows).toHaveLength(0);
+  });
+
+  it('shows nicknames, not usernames, and no uploaded photos on the leaderboard', async () => {
+    const u = await newUser({ username: 'maria.popescu', avatar_url: 'https://x.supabase.co/storage/v1/object/public/avatars/a/avatar.jpg' });
+    const e = await newUser({ username: 'ion', avatar_url: 'emoji:🦊' });
+    const lb = await pg.query<{ id: string; username: string; avatar_url: string | null }>(`select id, username, avatar_url from public.leaderboard`);
+    const row = lb.rows.find((r) => r.id === u.userId)!;
+    expect(row.username).not.toBe('maria.popescu');
+    expect(row.username).toMatch(/^[A-Z][a-z]+[A-Z][a-z]+\d{2}$/);
+    expect(row.avatar_url).toBeNull();
+    expect(lb.rows.find((r) => r.id === e.userId)!.avatar_url).toBe('emoji:🦊');
+  });
+
+  it('does not let the app call the deletion or retention functions', async () => {
+    const u = await newUser();
+    await expect(
+      pg.transaction(async (tx) => {
+        await tx.query(`set local role authenticated`);
+        await tx.query(`select public.delete_learner_data($1)`, [u.userId]);
+      }),
+    ).rejects.toThrow(/permission denied/);
   });
 });

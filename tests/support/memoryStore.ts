@@ -34,6 +34,7 @@ export class MemoryStore implements Store {
   llmCalls: (LlmCallRow & { session_id: string })[] = [];
   posterior: Posterior = { plain: { a: 1, b: 1 }, hint: { a: 1, b: 1 }, example: { a: 1, b: 1 } };
   xp = new Map<string, number>();
+  consents: { learner_id: string; kind: string; version: string }[] = [];
   private readonly bank = loadBank();
 
   constructor(private readonly clock: () => Date) {}
@@ -151,6 +152,27 @@ export class MemoryStore implements Store {
   async getAdaptiveDecision(attemptId: string, output: 'reward' | 'difficulty') {
     return this.adaptive.find((d) => d.attempt_id === attemptId && d.output === output) ?? null;
   }
+  async hasConsent(learnerId: string, version: string) {
+    const kinds = new Set(this.consents.filter((c) => c.learner_id === learnerId && c.version === version).map((c) => c.kind));
+    return kinds.has('parental_consent') && kinds.has('learner_assent');
+  }
+  async recordConsent(learnerId: string, version: string) {
+    for (const kind of ['parental_consent', 'learner_assent']) this.consents.push({ learner_id: learnerId, kind, version });
+  }
+  async deleteLearnerData(userId: string) {
+    const l = this.learners.find((x) => x.user_id === userId)!;
+    const sessions = new Set(this.sessions.filter((s) => s.learner_id === l.learner_id).map((s) => s.id));
+    const attempts = new Set(this.attempts.filter((a) => a.learner_id === l.learner_id).map((a) => a.id));
+    this.decisions = this.decisions.filter((d) => !attempts.has(d.attempt_id));
+    this.adaptive = this.adaptive.filter((d) => !attempts.has(d.attempt_id));
+    this.attempts = this.attempts.filter((a) => !attempts.has(a.id));
+    this.llmCalls = this.llmCalls.filter((c) => !sessions.has(c.session_id));
+    this.sessions = this.sessions.filter((s) => !sessions.has(s.id));
+    this.consents = this.consents.filter((c) => c.learner_id !== l.learner_id);
+    this.learners = this.learners.filter((x) => x.user_id !== userId);
+    this.learners.push({ user_id: userId, learner_id: randomUUID(), grade_band: null, adaptive: true });
+  }
+
   llmLogger(sessionId: string) {
     return async (row: LlmCallRow) => {
       this.llmCalls.push({ ...row, session_id: sessionId });

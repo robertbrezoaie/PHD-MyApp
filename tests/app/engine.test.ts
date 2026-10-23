@@ -30,6 +30,7 @@ function setup(over: { adaptive?: boolean; grade_band?: 'lower' | 'upper' | null
   const clock = () => new Date(t);
   const store = new MemoryStore(clock);
   const learner = store.addLearner(over);
+  void store.recordConsent(learner.learner_id, config.app.consent_version);
   const engine = new Engine({
     store,
     config,
@@ -266,5 +267,46 @@ describe('engine: rules', () => {
       expect(d.factors).toEqual(['e']);
       expect(d.text).toMatch(/^The next tasks are a little (harder|easier) because you have been (more|less) active lately\.$/);
     }
+  });
+});
+
+describe('engine: data protection (section 10)', () => {
+  it('asks for consent before the first session, and again when the consent text changes', async () => {
+    const { store, learner, engine } = setup();
+    store.consents = [];
+    await expect(engine.start(learner.user_id)).rejects.toMatchObject({ code: 'needs_consent' });
+    await engine.consent(learner.user_id);
+    expect(store.consents.map((c) => c.kind).sort()).toEqual(['learner_assent', 'parental_consent']);
+    expect(await engine.start(learner.user_id)).not.toBeNull();
+    store.consents = store.consents.map((c) => ({ ...c, version: 'v0' }));
+    await engine.quit(learner.user_id);
+    await expect(engine.start(learner.user_id)).rejects.toMatchObject({ code: 'needs_consent' });
+  });
+
+  it('deletes every learning row on request and starts a new pseudonym', async () => {
+    const { store, learner, engine } = setup();
+    const task = (await engine.start(learner.user_id))!;
+    await engine.answer(learner.user_id, task.attempt_id, 's0', false);
+    await engine.retry(learner.user_id, task.attempt_id, 's3', false);
+    await engine.deleteMyData(learner.user_id);
+    for (const rows of [store.sessions, store.attempts, store.decisions, store.adaptive, store.consents]) expect(rows).toHaveLength(0);
+    const fresh = (await store.getLearner(learner.user_id))!;
+    expect(fresh.learner_id).not.toBe(learner.learner_id);
+    expect(fresh.grade_band).toBeNull();
+    await expect(engine.start(learner.user_id)).rejects.toMatchObject({ code: 'needs_grade_band' });
+  });
+});
+
+describe('engine: missed sessions', () => {
+  it('adds planned_tasks slots of 0 per calendar week without a session', async () => {
+    const { store, learner, engine, advance } = setup();
+    await engine.start(learner.user_id); // Friday 2026-10-23
+    await engine.quit(learner.user_id);
+    advance(3 * 24 * 3600 * 1000); // Monday 2026-10-26: next week, nothing missed
+    await engine.start(learner.user_id);
+    await engine.quit(learner.user_id);
+    advance(15 * 24 * 3600 * 1000); // Tuesday 2026-11-10: the week of 2 November had no session
+    await engine.start(learner.user_id);
+    expect(store.sessions.map((s) => s.absent_slots_before)).toEqual([0, 0, 12]);
   });
 });
