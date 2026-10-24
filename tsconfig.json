@@ -19,6 +19,7 @@
     "supabase",
     "tests",
     "scripts/gen-bank-seed.ts",
+    "scripts/delete-avatar-photos.ts",
     "vitest.config.ts"
   ]
 }

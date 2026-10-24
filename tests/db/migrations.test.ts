@@ -27,6 +27,7 @@ const MIGRATIONS = [
   '20261023120000_adaptive_engine.sql',
   '20261023120100_bank_items_seed.sql',
   '20261023130000_data_protection.sql',
+  '20261024100000_remove_avatar_photos.sql',
 ];
 
 let pg: PGlite;
@@ -258,5 +259,19 @@ describe('data protection (section 10)', () => {
         await tx.query(`select public.delete_learner_data($1)`, [u.userId]);
       }),
     ).rejects.toThrow(/permission denied/);
+  });
+});
+
+describe('avatar photo removal', () => {
+  it('clears links to uploaded photos and keeps emoji and generated avatars', async () => {
+    const photo = await newUser({ avatar_url: 'https://x.supabase.co/storage/v1/object/public/avatars/u/avatar.jpg?t=1' });
+    const emoji = await newUser({ avatar_url: 'emoji:🐸' });
+    const bot = await newUser({ avatar_url: 'https://api.dicebear.com/7.x/bottts/png?seed=Zorgon' });
+    await pg.exec(readFileSync('supabase/migrations/20261024100000_remove_avatar_photos.sql', 'utf8'));
+    const url = async (id: string) =>
+      (await pg.query<{ avatar_url: string | null }>(`select avatar_url from public.profiles where id = $1`, [id])).rows[0].avatar_url;
+    expect(await url(photo.userId)).toBeNull();
+    expect(await url(emoji.userId)).toBe('emoji:🐸');
+    expect(await url(bot.userId)).toBe('https://api.dicebear.com/7.x/bottts/png?seed=Zorgon');
   });
 });
