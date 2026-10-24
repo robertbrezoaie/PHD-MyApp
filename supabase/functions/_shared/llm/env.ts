@@ -43,6 +43,6 @@ export const env = {
     return readEnv('LLM_MODEL_TUTOR')?.trim() || (this.llmProvider === 'mock' ? 'mock' : req('LLM_MODEL_TUTOR'));
   },
   get promptVersion() {
-    return readEnv('PROMPT_VERSION')?.trim() || 'v1';
+    return readEnv('PROMPT_VERSION')?.trim() || 'en-v1';
   },
 };

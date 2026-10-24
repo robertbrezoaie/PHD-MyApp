@@ -1,5 +1,6 @@
 // Copied from pit-study (../Bandit) lib/prompts/tutor.ts at tag freeze-v1 (commit e8d0f71); the live study is unchanged.
-// Changes in this copy: none (prompt text is byte-identical).
+// Changes in this copy: the English prompts "en-v1" are added (MyApp's questions are in English, 2026-10-24);
+// "v1" is pit-study's prompt, byte-identical.
 // Tutor prompts, keyed by PROMPT_VERSION (spec 9.1–9.4). Frozen after the freeze line.
 
 const SHARED_V1 = `You help Romanian schoolchildren (ages 10–18) after a wrong or incomplete answer in an after-school technology course. Write in Romanian with correct diacritics.
@@ -18,12 +19,19 @@ const EXAMPLE_V1 = `Write a WORKED EXAMPLE: solve a different but parallel examp
 - The example must use a different situation, objects or numbers than the learner's question.
 - Never answer the learner's question itself. Never restate the reference answer.`;
 
+const SHARED_EN_V1 = SHARED_V1.replace(
+  'You help Romanian schoolchildren (ages 10–18) after a wrong or incomplete answer in an after-school technology course. Write in Romanian with correct diacritics.',
+  'You help schoolchildren (ages 10–18) after a wrong or incomplete answer in an after-school technology course. Write in English.',
+);
+
 export const TUTOR_SYSTEM: Record<string, { hint: string; example: string }> = {
   v1: { hint: `${SHARED_V1}\n\n${HINT_V1}`, example: `${SHARED_V1}\n\n${EXAMPLE_V1}` },
+  'en-v1': { hint: `${SHARED_EN_V1}\n\n${HINT_V1}`, example: `${SHARED_EN_V1}\n\n${EXAMPLE_V1}` },
 };
 
 export const LEAK_RETRY_LINE: Record<string, string> = {
   v1: 'Your previous text revealed too much of the answer. Write it again without those key words.',
+  'en-v1': 'Your previous text revealed too much of the answer. Write it again without those key words.',
 };
 
 export function tutorSystem(version: string, kind: 'hint' | 'example'): string {

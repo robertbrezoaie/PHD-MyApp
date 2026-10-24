@@ -1,4 +1,5 @@
-// Ported from pit-study (../Bandit) tests/grader.test.ts at freeze-v1. Import paths changed; the Anthropic parameter test is dropped (provider not ported).
+// Ported from pit-study (../Bandit) tests/grader.test.ts at freeze-v1. Import paths changed; the Anthropic parameter test is dropped (provider not ported);
+// the misconception text expected below is the English one.
 import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { buildGraderUser, deterministicCheck, escapeAnswer, normalizeMisconception, type GradableQuestion } from '../../supabase/functions/_shared/grading/grader.ts';
@@ -64,7 +65,7 @@ describe('spec 7.4 – output handling', () => {
 describe('tutor message', () => {
   it('contains the first answer and misconception, never a retry or score', () => {
     const user = buildTutorUser(q, 'trebuie sa inceapa de la 0', 'start_value_wrong', 'lower');
-    expect(user).toContain('start_value_wrong: Crede că problema');
+    expect(user).toContain('start_value_wrong: Thinks the problem'); // English bank (pit-study: 'Crede că problema')
     expect(user).toContain('<grade_band>lower</grade_band>');
     expect(user).not.toMatch(/score|attempt/i);
   });

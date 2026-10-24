@@ -1,5 +1,5 @@
 // Copied from pit-study (../Bandit) lib/leakage.ts at tag freeze-v1 (commit e8d0f71); the live study is unchanged.
-// Changes in this copy: none.
+// Changes in this copy: English stopwords are added to pit-study's Romanian ones (MyApp's questions are in English).
 // Spec 9.4: does the tutor text reveal too much of the reference answer?
 
 const STOPWORDS = new Set(
@@ -14,6 +14,17 @@ const STOPWORDS = new Set(
     'dacă', 'face', 'faci', 'fiind', 'avem', 'aveai', 'acela', 'ceva', 'nimic', 'niste', 'nici', 'iar',
   ].map(normalize),
 );
+
+// English function words of four letters or more (contentWords ignores shorter words).
+const STOPWORDS_EN = [
+  'about', 'after', 'again', 'also', 'always', 'another', 'because', 'been', 'before', 'being', 'both', 'but',
+  'cannot', 'could', 'does', 'doing', 'done', 'each', 'even', 'every', 'example', 'first', 'from', 'have',
+  'having', 'here', 'into', 'just', 'like', 'make', 'many', 'more', 'most', 'much', 'must', 'next', 'only',
+  'other', 'over', 'same', 'should', 'some', 'something', 'such', 'than', 'that', 'their', 'them', 'then',
+  'there', 'these', 'they', 'thing', 'things', 'think', 'this', 'those', 'through', 'very', 'want', 'were',
+  'what', 'when', 'where', 'which', 'while', 'will', 'with', 'would', 'your', 'yours',
+];
+for (const w of STOPWORDS_EN) STOPWORDS.add(w);
 
 export function normalize(s: string): string {
   return s

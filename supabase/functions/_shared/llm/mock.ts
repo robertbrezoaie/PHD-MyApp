@@ -1,5 +1,5 @@
 // Copied from pit-study (../Bandit) lib/llm/mock.ts at tag freeze-v1 (commit e8d0f71); the live study is unchanged.
-// Changes in this copy: import paths; process.env is read through llm/env.ts so it runs in Deno.
+// Changes in this copy: import paths; process.env is read through llm/env.ts so it runs in Deno; mock texts in English.
 import type { LlmRequest, LlmResult } from './adapter.ts';
 import { readEnv } from './env.ts';
 
@@ -31,15 +31,15 @@ export async function mockCall(req: LlmRequest, _model: string): Promise<LlmResu
       misconception: score < 2 ? 'other' : null,
       confidence: 0.7,
       flags: { off_topic: false, gaming_attempt: gaming, wrong_language: false, needs_adult_attention: false },
-      rationale: 'Notă simulată (mock).',
+      rationale: 'Simulated grade (mock).',
     };
   } else if (req.purpose === 'name_reaction') {
-    out = { text: 'Ce nume grozav! Hai să începem.' };
+    out = { text: 'What a great name! Let us begin.' };
   } else if (req.purpose === 'hint') {
-    out = { text: 'Gândește-te la ce se întâmplă pas cu pas. Ce verifică programul și când? Încearcă din nou.' };
+    out = { text: 'Think about what happens step by step. What does the program check, and when? Try again.' };
   } else {
     out = {
-      text: 'Să luăm alt exemplu: o lampă se aprinde doar când apeși întrerupătorul. Întâi verificăm condiția, apoi facem acțiunea. Încearcă la fel la întrebarea ta.',
+      text: 'Take another example: a lamp turns on only when you press the switch. First we check the condition, then we do the action. Try the same idea on your question.',
     };
   }
   return { ok: true, text: JSON.stringify(out), latencyMs: Date.now() - started, inputTokens: 0, outputTokens: 0 };
