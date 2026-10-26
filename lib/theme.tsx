@@ -135,7 +135,8 @@ export const minimal = {
 };
 
 export type ThemeVariant = "dark" | "light" | "cyber" | "minimal";
-export type ThemeColors = typeof dark;
+// gradBg is a literal tuple in each palette (as const); the shared type only needs three colours.
+export type ThemeColors = Omit<typeof dark, "gradBg"> & { gradBg: readonly [string, string, string] };
 
 const PALETTES: Record<ThemeVariant, ThemeColors> = { dark, light, cyber, minimal };
 

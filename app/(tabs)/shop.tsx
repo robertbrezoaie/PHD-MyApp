@@ -21,7 +21,7 @@ const { width } = Dimensions.get("window");
 const ITEM_WIDTH = (width - 56) / 2;
 
 export default function ShopScreen() {
-  const { isDark, c } = useTheme();
+  const { c } = useTheme();
   const [coins, setCoins] = useState<number | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [owned, setOwned] = useState<Set<FrameId>>(new Set());

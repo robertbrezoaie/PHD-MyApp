@@ -50,7 +50,7 @@ export default function LevelUpOverlay({ visible, newLevel, onDismiss }: Props) 
         true
       ));
     }
-  }, [visible]);
+  }, [visible, badgeScale, badgeRotate, textOpacity, btnOpacity, pulse]);
 
   const badgeStyle = useAnimatedStyle(() => ({
     transform: [
@@ -99,7 +99,7 @@ export default function LevelUpOverlay({ visible, newLevel, onDismiss }: Props) 
           <Animated.View style={textStyle}>
             <Text style={styles.levelUpLabel}>LEVEL UP!</Text>
             <Text style={styles.levelNumber}>Level {newLevel}</Text>
-            <Text style={styles.subtitle}>You're on fire! Keep pushing forward.</Text>
+            <Text style={styles.subtitle}>{"You're on fire! Keep pushing forward."}</Text>
           </Animated.View>
 
           <Animated.View style={[styles.btnWrap, btnStyle]}>

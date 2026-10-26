@@ -11,8 +11,8 @@ import {
   RefreshControl,
   Alert,
   Dimensions,
+  Animated as RNAnimated,
 } from "react-native";
-import { Animated as RNAnimated } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
@@ -56,7 +56,7 @@ const THEME_SWATCHES: { key: ThemeVariant; label: string; bg: string; accent: st
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { isDark, variant, c, toggleTheme, setThemeVariant } = useTheme();
+  const { isDark, variant, c, setThemeVariant } = useTheme();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [displayedTasks, setDisplayedTasks] = useState<TaskWithCompletion[]>([]);
   const [completedToday, setCompletedToday] = useState(0);

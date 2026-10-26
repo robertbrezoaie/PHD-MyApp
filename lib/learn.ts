@@ -84,8 +84,7 @@ export async function getLearnerSettings(userId: string): Promise<LearnerSetting
 }
 
 export async function updateLearnerSettings(userId: string, patch: Partial<LearnerSettings>): Promise<void> {
-  // lib/database.types.ts does not match supabase-js's schema shape yet, so table types resolve to never
-  const { error } = await supabase.from("learners").update(patch as never).eq("user_id", userId);
+  const { error } = await supabase.from("learners").update(patch).eq("user_id", userId);
   if (error) throw error;
 }
 

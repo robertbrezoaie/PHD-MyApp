@@ -4,14 +4,14 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
-    "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
     "test": "vitest run",
     "typecheck:engine": "tsc --noEmit -p tests/tsconfig.json",
-    "typecheck:functions": "cd supabase/functions/learn && npx -y deno@2.5.6 check --config deno.json index.ts"
+    "typecheck:functions": "cd supabase/functions/learn && npx -y deno@2.5.6 check --config deno.json index.ts",
+    "gen:types": "supabase gen types typescript --linked --schema public > lib/database.generated.ts"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -20,7 +20,6 @@
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
     "@supabase/supabase-js": "^2.100.1",
-    "base64-arraybuffer": "^1.0.2",
     "expo": "~54.0.33",
     "expo-blur": "~15.0.8",
     "expo-constants": "~18.0.13",

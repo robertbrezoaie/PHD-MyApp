@@ -2,7 +2,7 @@
 -- REMOVE AVATAR PHOTO UPLOADS (LEARNSPACE_RESEARCH_UPDATE.md section 10.1; approved by Robert, 2026-10-24)
 -- The app no longer uploads photos. This drops the bucket's policies and clears profile links to
 -- uploaded photos; emoji ("emoji:…") and generated (DiceBear) avatars are kept.
--- The files and the bucket itself are deleted with scripts/delete-avatar-photos.ts (Storage API),
+-- The files and the bucket itself were deleted through the Storage API on 2026-10-26,
 -- because Supabase does not allow deleting stored files with SQL.
 -- ============================================================
 

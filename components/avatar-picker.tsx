@@ -11,7 +11,6 @@ import {
   ActivityIndicator,
   Image,
 } from "react-native";
-import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "../lib/theme";
@@ -66,7 +65,7 @@ interface Props {
 }
 
 export default function AvatarPicker({ visible, userId, onClose, onUpdated }: Props) {
-  const { isDark, c } = useTheme();
+  const { c } = useTheme();
   const [tab, setTab] = useState<Tab>("monsters");
   const [loading, setLoading] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
@@ -189,7 +188,6 @@ export default function AvatarPicker({ visible, userId, onClose, onUpdated }: Pr
                     colors={selectedMonster === m.seed ? ["#3DB4F220", "#7B61FF20"] : [c.bgSecondary, c.bgSecondary]}
                     style={StyleSheet.absoluteFill}
                   />
-                  {/* eslint-disable-next-line @typescript-eslint/no-require-imports */}
                   <MonsterImage uri={monsterUrl(m.seed)} />
                   <Text style={[styles.monsterLabel, { color: selectedMonster === m.seed ? c.accent : c.textMuted }]}>
                     {m.label}

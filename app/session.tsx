@@ -266,7 +266,7 @@ export default function SessionScreen() {
               />
               <PrimaryButton label={isRetry ? "Submit retry" : "Submit answer"} onPress={() => submit(false)} disabled={busy} busy={busy} />
               <TouchableOpacity onPress={() => submit(true)} disabled={busy} style={styles.dontKnow}>
-                <Text style={[styles.dontKnowText, { color: c.textMuted }]}>I don't know</Text>
+                <Text style={[styles.dontKnowText, { color: c.textMuted }]}>{"I don't know"}</Text>
               </TouchableOpacity>
             </View>
           </>

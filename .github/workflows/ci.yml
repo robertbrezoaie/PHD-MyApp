@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Tests
+        run: npm test
+      - name: Type check (engine, tests, scripts)
+        run: npm run typecheck:engine
+      - name: Type check (app)
+        run: npx tsc --noEmit
+      - name: Type check (learn Edge Function, Deno)
+        run: npm run typecheck:functions
+      - name: Lint
+        run: npm run lint

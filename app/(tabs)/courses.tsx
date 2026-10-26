@@ -6,7 +6,6 @@ import {
   StyleSheet,
   ActivityIndicator,
   RefreshControl,
-  Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -16,13 +15,10 @@ import { supabase } from "../../lib/supabase";
 import type { FreshLearnCourse } from "../../lib/api";
 import { useTheme } from "../../lib/theme";
 
-const { width } = Dimensions.get("window");
-
 export default function CoursesScreen() {
   const { isDark, c } = useTheme();
   const [courses, setCourses] = useState<FreshLearnCourse[]>([]);
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [flMember, setFlMember] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +34,6 @@ export default function CoursesScreen() {
     if (fnError) throw fnError;
     if (data?.error) throw new Error(data.error);
     setCourses(data.courses ?? []);
-    setFlMember(data.member ?? null);
   }, []);
 
   useEffect(() => {

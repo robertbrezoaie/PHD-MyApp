@@ -334,7 +334,7 @@ export default function QuestsScreen() {
                           ) : (
                             <LinearGradient colors={[c.bgSecondary, c.bg]} style={styles.playerAvatar}>
                               <Text style={[styles.playerAvatarInitial, { color: c.textMuted }]}>
-                                {player.username[0].toUpperCase()}
+                                {(player.username ?? "?")[0].toUpperCase()}
                               </Text>
                             </LinearGradient>
                           )}
@@ -343,7 +343,7 @@ export default function QuestsScreen() {
                           </Text>
                           <View style={styles.playerScoreRow}>
                             <MaterialCommunityIcons name="star-four-points" size={12} color={c.gold} />
-                            <Text style={[styles.playerScore, { color: c.gold }]}> {player.points.toLocaleString()}</Text>
+                            <Text style={[styles.playerScore, { color: c.gold }]}> {(player.points ?? 0).toLocaleString()}</Text>
                           </View>
                         </View>
                         {idx < displayedLb.length - 1 && <View style={[styles.divider, { backgroundColor: c.border }]} />}
