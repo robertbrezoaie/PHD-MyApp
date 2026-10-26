@@ -236,6 +236,24 @@ export async function updateAvatarUrl(userId: string, url: string): Promise<void
   await supabase.from("profiles").update({ avatar_url: url }).eq("id", userId);
 }
 
+// ─── FreshLearn Progress (via Edge Function) ─────────────────────────────────
+
+export type FreshLearnCourse = {
+  courseId: string;
+  courseName: string;
+  progress: number;       // 0–100
+  completionDate: string | null;
+  rating: number | null;
+};
+
+export async function getFreshLearnProgress(): Promise<FreshLearnCourse[]> {
+  const { data, error } = await supabase.functions.invoke("freshlearn-progress", {
+    body: {},
+  });
+  if (error) throw error;
+  return (data?.courses ?? []) as FreshLearnCourse[];
+}
+
 // ─── Refresh Energy (via Edge Function) ──────────────────────────────────────
 
 export async function refreshEnergy(): Promise<{ energy: number; max_energy: number }> {
